@@ -1,31 +1,91 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/stepsTextView"
-        android:layout_width="wrap_content"
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="320dp"
-        android:text="0"
-        android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/textView"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/PopupMenuStyle" />
 
+    <!-- Gradient Background -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_background"
+        android:layout_below="@id/toolbar" />
+
+    <!-- Step Count Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"
+        app:cardCornerRadius="150dp"
+        app:cardElevation="10dp"
+        app:cardBackgroundColor="@android:color/white">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="20dp">
+
+            <!-- Circular Progress Bar -->
+            <com.github.lzyzsd.circleprogress.CircleProgress
+                android:id="@+id/circle_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                app:circle_finished_color="@android:color/holo_blue_light"
+                app:circle_max="100"
+                app:circle_progress="50"
+                app:circle_text_color="@android:color/black"
+                app:circle_text_size="0sp"
+                app:circle_unfinished_color="@android:color/darker_gray" />
+
+            <!-- Step Count Text -->
+            <TextView
+                android:id="@+id/stepsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/roboto_bold"
+                android:text="0"
+                android:textColor="@color/black"
+                android:textSize="48sp" />
+
+            <!-- Steps Label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/stepsTextView"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="@font/roboto_medium"
+                android:text="Steps"
+                android:textColor="@color/gray"
+                android:textSize="18sp" />
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Motivational Message -->
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/motivationalMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="320dp"
-        android:text="Steps Today: "
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Keep walking!"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/roboto_medium" />
+
+    <!-- Step Goal Text -->
+
+    <!-- Step Goal SeekBar -->
+</RelativeLayout>

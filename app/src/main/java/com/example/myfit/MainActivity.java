@@ -8,13 +8,25 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.github.lzyzsd.circleprogress.CircleProgress;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,13 +37,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String PREFS_NAME = "StepCounterPrefs";
     private static final String LAST_RESET_DATE_KEY = "lastResetDate";
     private static final String STEPS_AT_RESET_KEY = "stepsAtReset";
+    private static final String STEP_GOAL_KEY = "stepGoal";
 
     private SensorManager sensorManager;
     private Sensor stepCounterSensor;
     private TextView stepsTextView;
-    private Button resetButton;
     private int stepsAtReset = 0;  // Tracks steps when reset is pressed
     private int totalSteps = 0;
+    private int stepGoal = 10000; // Default step goal
     private SharedPreferences sharedPreferences;
     private Handler handler;
     private Runnable runnable;
@@ -44,10 +57,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
+
         stepsTextView = findViewById(R.id.stepsTextView);
 
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
+        // Load step goal from SharedPreferences
+        stepGoal = sharedPreferences.getInt(STEP_GOAL_KEY, 10000);
 
         // Initialize SensorManager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -109,6 +129,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void updateStepDisplay() {
         int stepsToday = totalSteps - stepsAtReset;
         stepsTextView.setText(String.valueOf(stepsToday));
+
+        CircleProgress circleProgress = findViewById(R.id.circle_progress);
+        if (stepGoal <= stepsToday) {
+            circleProgress.setProgress(100);
+        } else {
+            circleProgress.setProgress((int) ((stepsToday / (double) stepGoal) * 100)); // Use step goal
+        }
+
+        // Update the motivational message
+        updateMotivationalMessage(stepsToday);
+    }
+
+    private void updateMotivationalMessage(int stepsToday) {
+        TextView motivationalMessage = findViewById(R.id.motivationalMessage);
+
+        if (stepsToday < stepGoal / 3) {
+            motivationalMessage.setText("You can do it!");
+        } else if (stepsToday < 2 * stepGoal / 3) {
+            motivationalMessage.setText("You're halfway there!");
+        } else {
+            motivationalMessage.setText("You're almost there!");
+        }
     }
 
     private void checkForNewDay(String lastResetDate) {
@@ -135,15 +177,65 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         editor.apply();
     }
 
+    private void saveStepGoal() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(STEP_GOAL_KEY, stepGoal);
+        editor.apply();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == ACTIVITY_RECOGNITION_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                // Permission granted, do nothing
             } else {
-                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_step_goal) {
+            showStepGoalDialog();
+            return true;
+        } else if (itemId == R.id.action_settings) {// Handle settings action
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showStepGoalDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set Step Goal");
+
+        final NumberPicker numberPicker = new NumberPicker(this);
+        numberPicker.setMinValue(1000);
+        numberPicker.setMaxValue(50000);
+        numberPicker.setValue(stepGoal);
+        numberPicker.setWrapSelectorWheel(false);
+
+        builder.setView(numberPicker);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            stepGoal = numberPicker.getValue();
+            saveStepGoal();
+            updateStepDisplay();
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+
 }
