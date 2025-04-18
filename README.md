@@ -12,10 +12,13 @@ MyFit is a modern Android application built with Jetpack Compose that helps user
 - Responsive and fluid animations
 
 ## Screenshots
+<div style="display: flex; gap: 20px; align-items: flex-start;">
+  <img src="assets/steps.jpg" alt="Steps Screen" width="250" />
+  <img src="assets/journal.jpg" alt="Journal Screen" width="250" />
+  <img src="assets/profile.jpg" alt="Profile Screen" width="250" />
+</div>
 
-![Steps Screen](assets/steps.jpg)
-![Journal Screen](assets/journal.jpg)
-![Profile Screen](assets/profile.jpg)
+
 
 ## Technical Stack
 
